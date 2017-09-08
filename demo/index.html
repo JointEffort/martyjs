@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html manifest="marty.appcache">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="jquery-3.2.1.min.js"></script>
+    <script src="../marty.js"></script>
+    <script src="../martyScan.js"></script>
+    <script src="main.js"></script>
+    <script type="text/javascript">
+
+		var bot = null;
+        var martyList = [];
+
+		findIp(function(myIP){
+            var subnet = myIP.substr(0, myIP.lastIndexOf('.'));
+            scanRange(subnet, martyList, connect);
+        });
+
+        function connect() {
+        	// For now we expect only 1 Marty ;-)
+        	var botIp = martyList[0][0];
+            bot = new Marty(botIp, "Marty");
+			setTimeout(init, 1000);
+		}
+
+		function init() {
+			bot.enable_motors();
+			reset();
+        }
+
+		function motorsOff() {
+			bot.disable_motors(0);
+		}
+
+        function walk(dir) {
+			var len = 60;
+
+			if (dir === "B") {
+                len = -len;
+            }
+			bot.walk(1, 0, 2000, len, "left");
+			bot.walk(1, 0, 2000, len, "right");
+        }
+
+        function reset() {
+			bot.stand_straight(500);
+        }
+
+        function dance() {
+            bot.circle_dance("left", 1000);
+			bot.circle_dance("right", 1000);
+            bot.stand_straight(500);
+		}
+
+		function kick(side) {
+            bot.kick(side, true, 1500);
+		}
+    </script>
+</head>
+<body>
+        <button onclick="init()">Init</button><br />
+        <button onclick="reset()">Reset</button><br />
+        <button onclick="walk('F')">Forward</button><br />
+        <button onclick="walk('B')">Backward</button><br />
+        <button onclick="dance()">Wiggle</button><br />
+        <button onclick="kick('left')">Kick left</button><br />
+        <button onclick="kick('right')">Kick right</button><br />
+        <button onclick="motorsOff()">Motors off</button><br />
+</body>
+</html>
